@@ -4,6 +4,7 @@
 - Gin
 - Templ
 - Clerk account and sdk
+- [Swag](https://github.com/swaggo/swag)
 
 *Optional*:
 - [Air](https://github.com/cosmtrek/air) (for hot-reloading Go projects)
@@ -28,4 +29,9 @@ MIJBIjANBgkqhkiG9w...
 ```
 CLERK_API_KEY=sk_test_
 JWT_PUBLIC_KEY_PATH=./clerk_public_key.pem
+DB_USER=
+DB_PASSWORD=
+DB_HOST=
+DB_PORT=
+DB_NAME=
 ```

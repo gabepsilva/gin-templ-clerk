@@ -1,0 +1,35 @@
+definitions:
+  models.User:
+    properties:
+      role:
+        type: string
+      uid:
+        type: string
+      username:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: My bootstrap project
+  title: GoTempl
+  version: "1.0"
+paths:
+  /user/:
+    get:
+      consumes:
+      - application/json
+      description: get string by ID
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/models.User'
+      summary: Show an account
+      tags:
+      - User
+securityDefinitions:
+  BasicAuth:
+    type: basic
+swagger: "2.0"

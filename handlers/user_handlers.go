@@ -41,6 +41,17 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 	c.JSON(http.StatusCreated, user)
 }
 
+// ShowAccount godoc
+// @Summary      Show an account
+// @Description  get string by ID
+// @Tags         User
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  models.User
+// Failure      400  {object}  json
+// Failure      404  {object}  httputil.HTTPError
+// Failure      500  {object}  httputil.HTTPError
+// @Router       /user/ [get]
 func (h *UserHandler) GetAllUsers(c *gin.Context) {
 	users, err := h.repo.GetAll()
 	if err != nil {
