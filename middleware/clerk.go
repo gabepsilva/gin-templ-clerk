@@ -7,7 +7,7 @@ import (
 	"errors"
 	"fmt"
 	"gotempl/views"
-	"gotempl/views/handlers"
+	"gotempl/views/layout"
 	"net/http"
 	"os"
 	"strings"
@@ -35,7 +35,7 @@ func (c *ClerkPublicAuthMiddleware) Init() error {
 	if keyPath != "" {
 		key, err := os.ReadFile(keyPath)
 		if err == nil {
-			jwtSigningKey = key
+			c.JwtPublicSigningKey = string(key)
 			return nil
 		}
 		return err
@@ -44,11 +44,11 @@ func (c *ClerkPublicAuthMiddleware) Init() error {
 }
 
 // Middleware for authentication
-func (c *ClerkPublicAuthMiddleware) ClerkAuthMiddleware() gin.HandlerFunc {
+func (cpam *ClerkPublicAuthMiddleware) ClerkAuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		cookie, err := c.Cookie("__session")
 		if err != nil || cookie == "" {
-			handlers.Render(c, http.StatusForbidden, views.Error500("Access denied: authentication is needed"))
+			layout.Render(c, http.StatusForbidden, views.Error500("Access denied: authentication is needed"))
 			c.Abort()
 			return
 		}
@@ -56,9 +56,9 @@ func (c *ClerkPublicAuthMiddleware) ClerkAuthMiddleware() gin.HandlerFunc {
 		// Extract session token from the cookie
 		sessionToken := strings.TrimSpace(cookie)
 
-		ret, err := verifyTokenLocally(sessionToken)
+		ret, err := cpam.VerifyTokenLocal(sessionToken)
 		if err != nil {
-			handlers.Render(c, http.StatusForbidden, views.Error500(fmt.Sprintf("Access denied: %s", err.Error())))
+			layout.Render(c, http.StatusForbidden, views.Error500(fmt.Sprintf("Access denied: %s (1001)", err.Error())))
 			c.Abort()
 			return
 		}
@@ -74,7 +74,7 @@ func (c *ClerkPublicAuthMiddleware) ClerkAuthMiddleware() gin.HandlerFunc {
 			Leeway: 10 * time.Second,
 		})
 		if err != nil {
-			handlers.Render(c, http.StatusForbidden, views.Error500(fmt.Sprintf("Access denied: %v", err)))
+			layout.Render(c, http.StatusForbidden, views.Error500(fmt.Sprintf("Access denied: %v (1002)", err)))
 
 			c.Abort()
 			return
@@ -83,14 +83,14 @@ func (c *ClerkPublicAuthMiddleware) ClerkAuthMiddleware() gin.HandlerFunc {
 		// Get user information
 		usr, err := user.Get(c.Request.Context(), claims.Subject)
 		if err != nil {
-			handlers.Render(c, http.StatusInternalServerError, views.Error500("Failed to get user information"))
+			layout.Render(c, http.StatusInternalServerError, views.Error500(fmt.Sprintf("%v (1002)", err)))
 			c.Abort()
 			return
 		}
 
 		// Check if the user is banned
 		if usr.Banned {
-			handlers.Render(c, http.StatusForbidden, views.Error500("Access denied: user is banned"))
+			layout.Render(c, http.StatusForbidden, views.Error500("Access denied: user is banned"))
 			c.Abort()
 			return
 		}
@@ -102,20 +102,9 @@ func (c *ClerkPublicAuthMiddleware) ClerkAuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-var jwtSigningKey = []byte(`-----BEGIN PUBLIC KEY-----
-MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAzDqLjNpG813z8Oxdpz0f
-9BQ/8P18DvcPA27se8m9gl9jyTh2wEWqhKAV/ydtp47e/bQfhe1A4+NkXfYx6+Np
-JobfBLAEJKDy+puhsqOMJkpcExNkzh6Wu/TBdWCQDvLl7lAZQzRP9XNyQ2CkOBAe
-jSllN390M2eogQHa/tuF1JjjtJW3G1ywaZwNHGcl/2FI1a0GMMCAPX8yWu55VzYS
-iXR61Eti7/+iErKFiSvpwTc9hkmTP2x2+Zl6CVqUC+sEzGgPsbRdcoxwIS+tPB3V
-tLf0iPvQGNUalMi32M1jnus2iwGUUeD+IcL/wAcTlQW6iK+OaFW37ct8YlqY92sT
-cQIDAQAB
------END PUBLIC KEY-----
-`)
+func (c *ClerkPublicAuthMiddleware) VerifyTokenLocal(tokenString string) (*jwt.Token, error) {
 
-func verifyTokenLocally(tokenString string) (*jwt.Token, error) {
-
-	publicKey, err := parseRSAPublicKey(jwtSigningKey)
+	publicKey, err := c.ParseRSAPublicKey([]byte(c.JwtPublicSigningKey))
 	if err != nil {
 		fmt.Errorf("Failed to parse public key: %v", err)
 	}
@@ -143,7 +132,7 @@ func verifyTokenLocally(tokenString string) (*jwt.Token, error) {
 }
 
 // Parse the RSA public key from the PEM-encoded data
-func parseRSAPublicKey(pemKey []byte) (*rsa.PublicKey, error) {
+func (c *ClerkPublicAuthMiddleware) ParseRSAPublicKey(pemKey []byte) (*rsa.PublicKey, error) {
 	block, _ := pem.Decode(pemKey)
 	if block == nil || block.Type != "PUBLIC KEY" {
 		return nil, fmt.Errorf("failed to decode PEM block containing public key")

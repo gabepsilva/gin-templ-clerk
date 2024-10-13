@@ -1,8 +1,9 @@
 package main
 
 import (
+	"gotempl/database"
+	"gotempl/handlers"
 	"gotempl/middleware"
-	"gotempl/views/handlers"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -32,15 +33,49 @@ func init() {
 
 	}
 	clerk.SetKey(apiKey)
+
+	database.InitDB()
+
 }
 
 func main() {
 	r := gin.Default()
 
+	eventHandler := handlers.NewEventHandler()
+	userHandler := handlers.NewUserHandler()
+
 	// Define routes
-	r.GET("/", handlers.HomeHandler)
-	r.GET("/login", handlers.LoginHandler)
-	r.GET("/protected", clerkMiddleware.ClerkAuthMiddleware(), handlers.ProtectedHandler)
+
+	eventRoutes := r.Group("/api/event")
+	{
+		eventRoutes.POST("/", eventHandler.CreateEvent)
+		eventRoutes.GET("/", eventHandler.GetAllEvents)
+		eventRoutes.GET("/:id", eventHandler.GetEvent)
+		eventRoutes.PUT("/:id", eventHandler.UpdateEvent)
+		eventRoutes.DELETE("/:id", eventHandler.DeleteEvent)
+	}
+
+	// User routes
+	userRoutes := r.Group("/api/user")
+	{
+		userRoutes.POST("/", userHandler.CreateUser)
+		userRoutes.GET("/", userHandler.GetAllUsers)
+		userRoutes.GET("/:id", userHandler.GetUser)
+		userRoutes.PUT("/:id", userHandler.UpdateUser)
+		userRoutes.DELETE("/:id", userHandler.DeleteUser)
+
+	}
+
+	adminRoutes := r.Group("/admin", clerkMiddleware.ClerkAuthMiddleware())
+	{
+
+		adminRoutes.GET("/", handlers.HomeHandler)
+		adminRoutes.GET("/protected", handlers.ProtectedHandler)
+		adminRoutes.GET("/user", handlers.NewUserHandler().UserCRUDHandler)
+
+	}
+
+	r.GET("/sign-in", handlers.LoginHandler)
 
 	// Run the server
 	r.Run()

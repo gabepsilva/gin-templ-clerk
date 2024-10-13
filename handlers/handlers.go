@@ -4,20 +4,20 @@ import (
 	"github.com/gin-gonic/gin"
 
 	"gotempl/views"
+	"gotempl/views/layout"
 )
 
 // Handler for the home page
 func HomeHandler(c *gin.Context) {
-	param := "world"
-	Render(c, 200, views.Index(param))
+	layout.Render(c, 200, views.Index())
 }
 
 // Handler for the login page
 func LoginHandler(c *gin.Context) {
-	Render(c, 200, views.Login())
+	layout.Render(c, 200, views.Login())
 }
 
 // Handler for the protected page
 func ProtectedHandler(c *gin.Context) {
-	Render(c, 200, views.Protected())
+	layout.Render(c, 200, views.Protected())
 }
