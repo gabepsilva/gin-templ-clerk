@@ -1,8 +1,8 @@
 package main
 
 import (
+	"gotempl/controller"
 	"gotempl/database"
-	"gotempl/handlers"
 	"gotempl/middleware"
 	"os"
 
@@ -66,11 +66,15 @@ func main() {
 	r := gin.Default()
 	docs.SwaggerInfo.BasePath = "/api/"
 
-	eventHandler := handlers.NewEventHandler()
-	userHandler := handlers.NewUserHandler()
+	// Public routes
+	// Serve static files (e.g., favicon)
+
+	r.Static("/public", "./public")
+
+	eventHandler := controller.NewEventHandler()
+	userHandler := controller.NewUserHandler()
 
 	// Define routes
-
 	eventRoutes := r.Group("/api/event")
 	{
 		eventRoutes.POST("/", eventHandler.CreateEvent)
@@ -94,15 +98,15 @@ func main() {
 	adminRoutes := r.Group("/admin", clerkMiddleware.ClerkAuthMiddleware())
 	{
 
-		adminRoutes.GET("/", handlers.HomeHandler)
-		adminRoutes.GET("/protected", handlers.ProtectedHandler)
-		adminRoutes.GET("/user", handlers.NewUserHandler().UserCRUDHandler)
+		adminRoutes.GET("/", controller.HomeHandler)
+		adminRoutes.GET("/protected", controller.ProtectedHandler)
+		adminRoutes.GET("/user", controller.NewUserHandler().UserCRUDHandler)
 
 	}
 
-	r.GET("/sign-in", handlers.LoginHandler)
+	r.GET("/sign-in", controller.LoginHandler)
 
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
+	r.GET("/swagger/*any", clerkMiddleware.ClerkAuthMiddleware(), ginSwagger.WrapHandler(swaggerFiles.Handler))
 
 	// Run the server
 	r.Run()

@@ -1,7 +1,7 @@
-package handlers
+package controller
 
 import (
-	"gotempl/models"
+	"gotempl/model"
 	"gotempl/repositories"
 	"net/http"
 	"strconv"
@@ -20,7 +20,7 @@ func NewEventHandler() *EventHandler {
 }
 
 func (h *EventHandler) CreateEvent(c *gin.Context) {
-	var event models.Event
+	var event model.Event
 	if err := c.ShouldBindJSON(&event); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -67,7 +67,7 @@ func (h *EventHandler) UpdateEvent(c *gin.Context) {
 		return
 	}
 
-	var event models.Event
+	var event model.Event
 	if err := c.ShouldBindJSON(&event); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return

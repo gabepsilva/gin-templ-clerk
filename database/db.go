@@ -2,7 +2,7 @@ package database
 
 import (
 	"fmt"
-	"gotempl/models"
+	"gotempl/model"
 	"log"
 	"os"
 	"time"
@@ -53,7 +53,7 @@ func InitDB() {
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	// Auto Migrate the schema
-	err = DB.AutoMigrate(&models.Event{}, &models.User{})
+	err = DB.AutoMigrate(&model.Event{}, &model.User{})
 	if err != nil {
 		log.Fatal("Failed to auto migrate:", err)
 	}

@@ -1,5 +1,5 @@
 definitions:
-  models.User:
+  model.User:
     properties:
       role:
         type: string
@@ -25,7 +25,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/models.User'
+            $ref: '#/definitions/model.User'
       summary: Show an account
       tags:
       - User

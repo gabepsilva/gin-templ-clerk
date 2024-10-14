@@ -95,7 +95,7 @@ func (cpam *ClerkPublicAuthMiddleware) ClerkAuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Set user info in context for use in other handlers
+		// Set user info in context for use in other controller
 		c.Set("user", usr)
 
 		c.Next()

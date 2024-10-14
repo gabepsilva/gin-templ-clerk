@@ -1,7 +1,7 @@
-package handlers
+package controller
 
 import (
-	"gotempl/models"
+	"gotempl/model"
 	"gotempl/repositories"
 	"gotempl/views/crud"
 	"gotempl/views/layout"
@@ -22,7 +22,7 @@ func NewUserHandler() *UserHandler {
 }
 
 func (h *UserHandler) CreateUser(c *gin.Context) {
-	var user models.User
+	var user model.User
 
 	// First try to bind JSON
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -47,7 +47,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 // @Tags         User
 // @Accept       json
 // @Produce      json
-// @Success      200  {object}  models.User
+// @Success      200  {object}  model.User
 // Failure      400  {object}  json
 // Failure      404  {object}  httputil.HTTPError
 // Failure      500  {object}  httputil.HTTPError
@@ -81,7 +81,7 @@ func (h *UserHandler) GetUser(c *gin.Context) {
 func (h *UserHandler) UpdateUser(c *gin.Context) {
 	id := c.Param("id")
 
-	var user models.User
+	var user model.User
 	if err := c.ShouldBindJSON(&user); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
 		return
@@ -115,5 +115,5 @@ func (h *UserHandler) UserCRUDHandler(c *gin.Context) {
 	}
 
 	//print(users)
-	layout.Render(c, 200, crud.UserForm(users, &models.User{}))
+	layout.Render(c, 200, crud.UserForm(users, &model.User{}))
 }
