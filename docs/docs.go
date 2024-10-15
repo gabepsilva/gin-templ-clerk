@@ -354,15 +354,25 @@ const docTemplate = `{
         },
         "model.User": {
             "type": "object",
+            "required": [
+                "uid",
+                "username"
+            ],
             "properties": {
                 "role": {
-                    "type": "string"
+                    "type": "string",
+                    "enum": [
+                        "user",
+                        "admin"
+                    ]
                 },
                 "uid": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1
                 },
                 "username": {
-                    "type": "string"
+                    "type": "string",
+                    "minLength": 1
                 }
             }
         }

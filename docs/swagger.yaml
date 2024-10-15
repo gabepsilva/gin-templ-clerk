@@ -82,11 +82,19 @@ definitions:
   model.User:
     properties:
       role:
+        enum:
+        - user
+        - admin
         type: string
       uid:
+        minLength: 1
         type: string
       username:
+        minLength: 1
         type: string
+    required:
+    - uid
+    - username
     type: object
 info:
   contact: {}

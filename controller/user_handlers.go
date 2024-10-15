@@ -2,8 +2,8 @@ package controller
 
 import (
 	"errors"
+	"gotempl/controller/service"
 	"gotempl/model"
-	"gotempl/repositories"
 	"gotempl/views/crud"
 	"gotempl/views/layout"
 	"net/http"
@@ -13,14 +13,12 @@ import (
 )
 
 type UserHandler struct {
-	Repo repositories.UserRepository
+	Service *service.UserService
 }
 
-/*
-func NewUserHandler(repo UserRepository) *UserHandler {
-	return &UserHandler{Repo: repo}
+func NewUserHandler(service *service.UserService) *UserHandler {
+	return &UserHandler{Service: service}
 }
-*/
 
 // CreateUser godoc
 // @Summary      Create a new user
@@ -41,8 +39,8 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 		return
 	}
 
-	if err := h.Repo.Create(&user); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to create user"})
+	if err := h.Service.CreateUser(&user); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Failed to create user"})
 		return
 	}
 
@@ -59,7 +57,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 // @Failure      500  {object}  map[string]string
 // @Router       /user [get]
 func (h *UserHandler) GetAllUsers(c *gin.Context) {
-	users, err := h.Repo.GetAll()
+	users, err := h.Service.GetAllUser()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
 		return
@@ -82,7 +80,7 @@ func (h *UserHandler) GetAllUsers(c *gin.Context) {
 func (h *UserHandler) GetUser(c *gin.Context) {
 	id := c.Param("id")
 
-	user, err := h.Repo.GetByID(id)
+	user, err := h.Service.GetUserByID(id)
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			c.JSON(http.StatusNotFound, gin.H{"error": "User not found"})
@@ -117,7 +115,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 	}
 
 	user.Uid = string(id)
-	if err := h.Repo.Update(&user); err != nil {
+	if err := h.Service.UpdateUser(&user); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to update user"})
 		return
 	}
@@ -138,7 +136,7 @@ func (h *UserHandler) UpdateUser(c *gin.Context) {
 func (h *UserHandler) DeleteUser(c *gin.Context) {
 	id := c.Param("id")
 
-	if err := h.Repo.Delete(id); err != nil {
+	if err := h.Service.DeleteUser(id); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to delete user"})
 		return
 	}
@@ -155,7 +153,7 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 // @Router       /admin/user/crud [get]
 // @Notes
 func (h *UserHandler) UserCRUDHandler(c *gin.Context) {
-	users, err := h.Repo.GetAll()
+	users, err := h.Service.GetAllUsers()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
 		return

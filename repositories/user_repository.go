@@ -1,38 +1,45 @@
 package repositories
 
 import (
-	"gotempl/database"
 	"gotempl/model"
+
+	"gorm.io/gorm"
 )
 
-type UserRepository struct{}
+type UserRepository struct {
+	DB *gorm.DB
+}
+
+func NewUserRepository(db *gorm.DB) *UserRepository {
+	return &UserRepository{DB: db}
+}
 
 func (r *UserRepository) Create(user *model.User) error {
-	return database.DB.Create(user).Error
+	return r.DB.Create(user).Error
 }
 
 func (r *UserRepository) GetAll() ([]model.User, error) {
 	var users []model.User
-	err := database.DB.Find(&users).Error
+	err := r.DB.Find(&users).Error
 	return users, err
 }
 
 func (r *UserRepository) GetByID(id string) (*model.User, error) {
 	var user model.User
-	err := database.DB.First(&user, "uid = ?", id).Error
+	err := r.DB.First(&user, "uid = ?", id).Error
 	return &user, err
 }
 
 func (r *UserRepository) Update(user *model.User) error {
-	return database.DB.Save(user).Error
+	return r.DB.Save(user).Error
 }
 
 func (r *UserRepository) Delete(id string) error {
-	return database.DB.Delete(&model.User{}, "uid = ?", id).Error
+	return r.DB.Delete(&model.User{}, "uid = ?", id).Error
 }
 
 func (r *UserRepository) GetByUsername(username string) (*model.User, error) {
 	var user model.User
-	err := database.DB.Where("username = ?", username).First(&user).Error
+	err := r.DB.Where("username = ?", username).First(&user).Error
 	return &user, err
 }
