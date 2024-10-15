@@ -28,6 +28,7 @@ func setupTestEnvironment(t *testing.T) (*gorm.DB, *UserHandler, *gin.Engine) {
 	service := service.NewUserService(repo)
 	handler := NewUserHandler(service)
 
+	gin.SetMode(gin.TestMode)
 	router := gin.Default()
 	return db, handler, router
 }

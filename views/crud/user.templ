@@ -29,7 +29,7 @@ templ UserForm(users []model.User, editUser *model.User) {
 				</div>
 			</div>
 			<div class="mt-4">
-				<button type="submit" class="btn btn-primary">Submit</button>
+				<button id="submitBtn" type="submit" class="btn btn-primary">Submit</button>
 			</div>
 		</form>
 		<div id="result"></div>
@@ -141,7 +141,6 @@ templ DynamicUserRow(user model.User) {
 		<button onclick="editUserHandler(this)" class="btn btn-warning">Edit </button>
 		<button
 			hx-delete={ string(templ.URL(fmt.Sprintf("/api/user/%s", user.Uid))) }
-			hx-confirm="Are you sure you want to delete this user?"
 			hx-target="#users-table-body"
 			hx-on::after-request="if(event.detail.successful) location.reload();"
 			class="btn btn-danger"

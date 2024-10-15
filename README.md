@@ -5,6 +5,7 @@
 - Templ
 - Clerk account and sdk
 - [Swag](https://github.com/swaggo/swag)
+- [chromedp](https://github.com/chromedp/chromedp)
 
 *Optional*:
 - [Air](https://github.com/cosmtrek/air) (for hot-reloading Go projects)
