@@ -1,4 +1,84 @@
 definitions:
+  model.Event:
+    properties:
+      attendees_count:
+        description: 'AttendeesCount (uint): The current number of registered attendees.'
+        type: integer
+      created_at:
+        description: 'CreatedAt (time.Time): The timestamp when the event was created,
+          automatically set.'
+        type: string
+      createdBy:
+        description: 'CreatedBy (string): The user ID of the event creator, linking
+          to the User entity.'
+        type: string
+      description:
+        description: 'Description (string): A brief explanation of what the event
+          is about.'
+        type: string
+      end_time:
+        description: 'EndTime (time.Time): When the event is scheduled to end.'
+        type: string
+      event_type:
+        description: 'EventType (string): The type or category of the event (e.g.,
+          webinar, in-person, hybrid).'
+        type: string
+      external_link:
+        description: 'ExternalLink (string): Link to an external site related to the
+          event (e.g., event registration page or official website).'
+        type: string
+      id:
+        description: 'ID (uint): The unique identifier for the event, serves as the
+          primary key.'
+        type: integer
+      is_featured:
+        description: 'IsFeatured (bool): Indicates whether this event is featured
+          or highlighted on the platform.'
+        type: boolean
+      is_public:
+        description: 'IsPublic (bool): Whether the event is public or private. Defaults
+          to public.'
+        type: boolean
+      location:
+        description: 'Location (string): The physical or virtual location where the
+          event will take place.'
+        type: string
+      max_attendees:
+        description: 'MaxAttendees (uint): The maximum number of attendees allowed.'
+        type: integer
+      organizer_contact_info:
+        description: 'OrganizerContactInfo (string): Contact details for the event
+          organizer.'
+        type: string
+      rsvp_required:
+        description: 'RSVPRequired (bool): Whether an RSVP is required to attend the
+          event.'
+        type: boolean
+      start_time:
+        description: 'Images               []string  `json:"images" gorm:"type:json"`            //
+          Images ([]string): Array of image URLs associated with the event (e.g.,
+          event posters).'
+        type: string
+      status:
+        description: 'Status (string): The current state of the event (e.g., draft,
+          published, cancelled).'
+        type: string
+      tags:
+        description: 'Tags ([]string): For categorizing events using tags like "conference",
+          "workshop", etc.'
+        type: string
+      title:
+        description: 'Title (string): The title of the event, required for easy identification.'
+        type: string
+      updated_at:
+        description: 'UpdatedAt (time.Time): The timestamp when the event was last
+          updated, automatically set.'
+        type: string
+      updated_by:
+        description: 'UpdatedBy (string): The user ID of the person who last updated
+          the event.'
+        type: string
+    type: object
   model.User:
     properties:
       role:
@@ -14,7 +94,21 @@ info:
   title: GoTempl
   version: "1.0"
 paths:
-  /user/:
+  /admin/user/crud:
+    get:
+      description: Fetches all users and renders an HTML page with a CRUD form for
+        user management (non-REST endpoint)
+      produces:
+      - text/html
+      responses:
+        "200":
+          description: HTML page content
+          schema:
+            type: string
+      summary: This is a non-REST endpoint that returns an HTML page - not JSON data
+      tags:
+      - User
+  /event/:
     get:
       consumes:
       - application/json
@@ -25,8 +119,145 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/model.User'
+            $ref: '#/definitions/model.Event'
       summary: Show an account
+      tags:
+      - Event
+  /user:
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a list of all users
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/model.User'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+      summary: Get all users
+      tags:
+      - User
+    post:
+      consumes:
+      - application/json
+      description: Create a new user with the provided information
+      parameters:
+      - description: User information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: Create a new user
+      tags:
+      - User
+  /user/{id}:
+    delete:
+      consumes:
+      - application/json
+      description: Delete a user from the system using their ID.
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: Delete a user
+      tags:
+      - User
+    get:
+      consumes:
+      - application/json
+      description: Retrieve a user's information using their ID
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: object
+        "404":
+          description: Not Found
+          schema:
+            type: object
+      summary: Get a user by ID
+      tags:
+      - User
+    put:
+      consumes:
+      - application/json
+      description: Update a user's information in the system
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated user information
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/model.User'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/model.User'
+        "400":
+          description: Bad Request
+          schema:
+            type: object
+        "500":
+          description: Internal Server Error
+          schema:
+            type: object
+      summary: Update a user
       tags:
       - User
 securityDefinitions:

@@ -16,8 +16,3 @@ func HomeHandler(c *gin.Context) {
 func LoginHandler(c *gin.Context) {
 	layout.Render(c, 200, views.Login())
 }
-
-// Handler for the protected page
-func ProtectedHandler(c *gin.Context) {
-	layout.Render(c, 200, views.Protected())
-}

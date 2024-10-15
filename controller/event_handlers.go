@@ -3,6 +3,8 @@ package controller
 import (
 	"gotempl/model"
 	"gotempl/repositories"
+	"gotempl/views/crud"
+	"gotempl/views/layout"
 	"net/http"
 	"strconv"
 
@@ -11,12 +13,6 @@ import (
 
 type EventHandler struct {
 	repo repositories.EventRepository
-}
-
-func NewEventHandler() *EventHandler {
-	return &EventHandler{
-		repo: repositories.EventRepository{},
-	}
 }
 
 func (h *EventHandler) CreateEvent(c *gin.Context) {
@@ -34,6 +30,17 @@ func (h *EventHandler) CreateEvent(c *gin.Context) {
 	c.JSON(http.StatusCreated, event)
 }
 
+// ShowAccount godoc
+// @Summary      Show an account
+// @Description  get string by ID
+// @Tags         Event
+// @Accept       json
+// @Produce      json
+// @Success      200  {object}  model.Event
+// Failure      400  {object}  json
+// Failure      404  {object}  httputil.HTTPError
+// Failure      500  {object}  httputil.HTTPError
+// @Router       /event/ [get]
 func (h *EventHandler) GetAllEvents(c *gin.Context) {
 	events, err := h.repo.GetAll()
 	if err != nil {
@@ -95,4 +102,15 @@ func (h *EventHandler) DeleteEvent(c *gin.Context) {
 	}
 
 	c.Status(http.StatusNoContent)
+}
+
+func (h *EventHandler) EventCRUDHandler(c *gin.Context) {
+	events, err := h.repo.GetAll()
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch event"})
+		return
+	}
+
+	//print(event)
+	layout.Render(c, 200, crud.EventForm(events))
 }

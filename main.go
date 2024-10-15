@@ -71,8 +71,8 @@ func main() {
 
 	r.Static("/public", "./public")
 
-	eventHandler := controller.NewEventHandler()
-	userHandler := controller.NewUserHandler()
+	eventHandler := controller.EventHandler{}
+	userHandler := controller.UserHandler{}
 
 	// Define routes
 	eventRoutes := r.Group("/api/event")
@@ -99,8 +99,8 @@ func main() {
 	{
 
 		adminRoutes.GET("/", controller.HomeHandler)
-		adminRoutes.GET("/protected", controller.ProtectedHandler)
-		adminRoutes.GET("/user", controller.NewUserHandler().UserCRUDHandler)
+		adminRoutes.GET("/user", userHandler.UserCRUDHandler)
+		adminRoutes.GET("/event", eventHandler.EventCRUDHandler)
 
 	}
 

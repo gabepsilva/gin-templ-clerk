@@ -7,7 +7,27 @@
         "version": "1.0"
     },
     "paths": {
-        "/user/": {
+        "/admin/user/crud": {
+            "get": {
+                "description": "Fetches all users and renders an HTML page with a CRUD form for user management (non-REST endpoint)",
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "This is a non-REST endpoint that returns an HTML page - not JSON data",
+                "responses": {
+                    "200": {
+                        "description": "HTML page content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/event/": {
             "get": {
                 "description": "get string by ID",
                 "consumes": [
@@ -17,14 +37,221 @@
                     "application/json"
                 ],
                 "tags": [
-                    "User"
+                    "Event"
                 ],
                 "summary": "Show an account",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
+                            "$ref": "#/definitions/model.Event"
+                        }
+                    }
+                }
+            }
+        },
+        "/user": {
+            "get": {
+                "description": "Retrieve a list of all users",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get all users",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.User"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new user with the provided information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Create a new user",
+                "parameters": [
+                    {
+                        "description": "User information",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
                             "$ref": "#/definitions/model.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/user/{id}": {
+            "get": {
+                "description": "Retrieve a user's information using their ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Get a user by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a user's information in the system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Update a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated user information",
+                        "name": "user",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.User"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a user from the system using their ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "User"
+                ],
+                "summary": "Delete a user",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "User ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
                         }
                     }
                 }
@@ -32,6 +259,91 @@
         }
     },
     "definitions": {
+        "model.Event": {
+            "type": "object",
+            "properties": {
+                "attendees_count": {
+                    "description": "AttendeesCount (uint): The current number of registered attendees.",
+                    "type": "integer"
+                },
+                "createdBy": {
+                    "description": "CreatedBy (string): The user ID of the event creator, linking to the User entity.",
+                    "type": "string"
+                },
+                "created_at": {
+                    "description": "CreatedAt (time.Time): The timestamp when the event was created, automatically set.",
+                    "type": "string"
+                },
+                "description": {
+                    "description": "Description (string): A brief explanation of what the event is about.",
+                    "type": "string"
+                },
+                "end_time": {
+                    "description": "EndTime (time.Time): When the event is scheduled to end.",
+                    "type": "string"
+                },
+                "event_type": {
+                    "description": "EventType (string): The type or category of the event (e.g., webinar, in-person, hybrid).",
+                    "type": "string"
+                },
+                "external_link": {
+                    "description": "ExternalLink (string): Link to an external site related to the event (e.g., event registration page or official website).",
+                    "type": "string"
+                },
+                "id": {
+                    "description": "ID (uint): The unique identifier for the event, serves as the primary key.",
+                    "type": "integer"
+                },
+                "is_featured": {
+                    "description": "IsFeatured (bool): Indicates whether this event is featured or highlighted on the platform.",
+                    "type": "boolean"
+                },
+                "is_public": {
+                    "description": "IsPublic (bool): Whether the event is public or private. Defaults to public.",
+                    "type": "boolean"
+                },
+                "location": {
+                    "description": "Location (string): The physical or virtual location where the event will take place.",
+                    "type": "string"
+                },
+                "max_attendees": {
+                    "description": "MaxAttendees (uint): The maximum number of attendees allowed.",
+                    "type": "integer"
+                },
+                "organizer_contact_info": {
+                    "description": "OrganizerContactInfo (string): Contact details for the event organizer.",
+                    "type": "string"
+                },
+                "rsvp_required": {
+                    "description": "RSVPRequired (bool): Whether an RSVP is required to attend the event.",
+                    "type": "boolean"
+                },
+                "start_time": {
+                    "description": "Images               []string  `json:\"images\" gorm:\"type:json\"`            // Images ([]string): Array of image URLs associated with the event (e.g., event posters).",
+                    "type": "string"
+                },
+                "status": {
+                    "description": "Status (string): The current state of the event (e.g., draft, published, cancelled).",
+                    "type": "string"
+                },
+                "tags": {
+                    "description": "Tags ([]string): For categorizing events using tags like \"conference\", \"workshop\", etc.",
+                    "type": "string"
+                },
+                "title": {
+                    "description": "Title (string): The title of the event, required for easy identification.",
+                    "type": "string"
+                },
+                "updated_at": {
+                    "description": "UpdatedAt (time.Time): The timestamp when the event was last updated, automatically set.",
+                    "type": "string"
+                },
+                "updated_by": {
+                    "description": "UpdatedBy (string): The user ID of the person who last updated the event.",
+                    "type": "string"
+                }
+            }
+        },
         "model.User": {
             "type": "object",
             "properties": {

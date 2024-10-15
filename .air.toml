@@ -7,17 +7,17 @@ tmp_dir = "tmp"
 
 [build]
 # Array of commands to run before each build
-pre_cmd = [""]
+pre_cmd = ["swag init", "templ generate"]
 # Just plain old shell command. You could use `make` as well.
-cmd = "templ generate && go build -o ./tmp/main ."
+cmd = "go build -o ./tmp/main ."
 # Array of commands to run after ^C
-post_cmd = [""]
+post_cmd = []
 # Binary file yields from `cmd`.
 bin = "tmp/main"
 # Customize binary, can setup environment variables when run your app.
 full_bin = "APP_ENV=dev APP_USER=air ./tmp/main"
 # Add additional arguments when running binary (bin/full_bin). Will run './tmp/main hello world'.
-args_bin = ["hello", "world"]
+args_bin = [""]
 # Watch these filename extensions.
 include_ext = ["go", "tpl", "tmpl", "html", "templ"]
 # Ignore these filename extensions or directories.
@@ -29,7 +29,7 @@ include_file = []
 # Exclude files.
 exclude_file = []
 # Exclude specific regular expressions.
-exclude_regex = ["_test\\.go"]
+exclude_regex = ["_test\\.go", "_templ\\.go"]
 # Exclude unchanged files.
 exclude_unchanged = true
 # Follow symlink for directories
@@ -37,9 +37,9 @@ follow_symlink = true
 # This log file places in your tmp_dir.
 log = "air.log"
 # Poll files for changes instead of using fsnotify.
-poll = false
+poll = true
 # Poll interval (defaults to the minimum interval of 500ms).
-poll_interval = 500 # ms
+poll_interval = 100 # ms
 # It's not necessary to trigger build each time file changes if it's too frequent.
 delay = 0 # ms
 # Stop running old binary when build errors occur.
@@ -73,7 +73,7 @@ runner = "green"
 clean_on_exit = true
 
 [screen]
-clear_on_rebuild = true
+clear_on_rebuild = false
 keep_scroll = true
 
 [proxy]
