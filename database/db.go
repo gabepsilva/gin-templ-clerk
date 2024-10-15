@@ -12,10 +12,11 @@ import (
 	"gorm.io/gorm/logger"
 )
 
+// this is here for compatibility with the events resource
+// once the resource is updated this can be deleted
 var DB *gorm.DB
 
-func InitDB() {
-
+func InitDB() *gorm.DB {
 	DB_USER := os.Getenv("DB_USER")
 	DB_PASSWORD := os.Getenv("DB_PASSWORD")
 	DB_HOST := os.Getenv("DB_HOST")
@@ -29,8 +30,7 @@ func InitDB() {
 		DB_PORT,
 		DB_NAME)
 
-	var err error
-	DB, err = gorm.Open(mysql.Open(dsn), &gorm.Config{
+	db, err := gorm.Open(mysql.Open(dsn), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
@@ -38,24 +38,20 @@ func InitDB() {
 	}
 
 	// Configure connection pool
-	sqlDB, err := DB.DB()
+	sqlDB, err := db.DB()
 	if err != nil {
 		log.Fatal("Failed to get database instance:", err)
 	}
 
-	// SetMaxIdleConns sets the maximum number of connections in the idle connection pool.
 	sqlDB.SetMaxIdleConns(10)
-
-	// SetMaxOpenConns sets the maximum number of open connections to the database.
 	sqlDB.SetMaxOpenConns(100)
-
-	// SetConnMaxLifetime sets the maximum amount of time a connection may be reused.
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	// Auto Migrate the schema
-	err = DB.AutoMigrate(&model.Event{}, &model.User{})
+	err = db.AutoMigrate(&model.Event{}, &model.User{})
 	if err != nil {
 		log.Fatal("Failed to auto migrate:", err)
 	}
 
+	return db
 }

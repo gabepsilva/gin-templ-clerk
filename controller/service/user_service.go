@@ -57,5 +57,5 @@ func (s *UserService) DeleteUser(id string) error {
 
 // Additional method to match the handler
 func (s *UserService) GetAllUser() ([]model.User, error) {
-	return s.GetAllUsers()
+	return s.repo.GetAll()
 }

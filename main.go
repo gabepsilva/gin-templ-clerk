@@ -2,8 +2,10 @@ package main
 
 import (
 	"gotempl/controller"
+	"gotempl/controller/service"
 	"gotempl/database"
 	"gotempl/middleware"
+	"gotempl/repositories"
 	"os"
 
 	"github.com/gin-gonic/gin"
@@ -38,9 +40,6 @@ func init() {
 
 	}
 	clerk.SetKey(apiKey)
-
-	database.InitDB()
-
 }
 
 // @title           GoTempl
@@ -71,8 +70,13 @@ func main() {
 
 	r.Static("/public", "./public")
 
+	db := database.InitDB()
+
+	userRepo := repositories.NewUserRepository(db)
+	userService := service.NewUserService(userRepo)
+	userHandler := controller.NewUserHandler(userService)
+
 	eventHandler := controller.EventHandler{}
-	userHandler := controller.UserHandler{}
 
 	// Define routes
 	eventRoutes := r.Group("/api/event")

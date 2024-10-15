@@ -57,7 +57,7 @@ func (h *UserHandler) CreateUser(c *gin.Context) {
 // @Failure      500  {object}  map[string]string
 // @Router       /user [get]
 func (h *UserHandler) GetAllUsers(c *gin.Context) {
-	users, err := h.Service.GetAllUser()
+	users, err := h.Service.GetAllUsers()
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Failed to fetch users"})
 		return
