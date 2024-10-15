@@ -1,72 +1,58 @@
 package crud
 
 import (
-"gotempl/model"
-"fmt"
+	"fmt"
+	"gotempl/model"
+	"reflect"
 )
 
 templ UserForm(users []model.User, editUser *model.User) {
-<div class="container mx-auto p-4">
-
-	<h1 class="text-2xl font-bold mb-4">User Management</h1>
-	<h2 class="text-xl font-bold mb-4">Create User</h2>
-
-	<form id="userForm" action="/api/user" method="POST" 
-		class="mb-8 p-4 bg-gray-100 rounded">
-		<div class="mb-4">
-			<label for="uid" class="block text-gray-700 font-bold mb-2">User ID:</label>
-			<input type="text" id="uid" name="uid" class="w-full px-3 py-2 border rounded-lg" />
-		</div>
-		<div class="mb-4">
-			<label for="username" class="block text-gray-700 font-bold mb-2">Username:</label>
-			<input type="text" id="username" name="username" class="w-full px-3 py-2 border rounded-lg" />
-		</div>
-		<div class="mb-4">
-			<label for="role" class="block text-gray-700 font-bold mb-2">Role:</label>
-			<select id="role" name="role" class="w-full px-3 py-2 border rounded-lg">
-				<option value="user">User</option>
-				<option value="admin">Admin</option>
-			</select>
-		</div>
-		<button type="submit" class="btn btn-primary">Submit</button>
-	</form>
-
-	<div id="result"></div>
-	
-	<h2 class="text-xl font-bold mb-4">List User</h2>
-  <table class="w-full border-collapse border">
-    <thead>
-      <tr class="bg-gray-200">
-        <th class="border p-2">User ID</th>
-        <th class="border p-2">Username</th>
-        <th class="border p-2">Role</th>
-        <th class="border p-2">Actions</th>
-      </tr>
-    </thead>
-    <tbody id="users-table-body">
-      for _, user := range users {
-      <tr>
-        <td contenteditable="true" class="border p-2">{ user.Uid }</td>
-        <td contenteditable="true" class="border p-2">{ user.Username }</td>
-        <td contenteditable="true" class="border p-2">{ user.Role }</td>
-        <td class="border p-2">
-          <button onclick="editUserHandler()" class="btn btn-warning"> Edit </button>
-
-          <button hx-delete={ string(templ.URL(fmt.Sprintf("/api/user/%s", user.Uid)))}
-                  hx-confirm="Are you sure you want to delete this user?"
-                  hx-target="#users-table-body"
-                  hx-on::after-request="if(event.detail.successful) location.reload();"
-                  class="btn btn-danger">
-            Delete
-          </button>
-        </td>
-      </tr>
-      }
-    </tbody>
-  </table>
-</div>
-
-<script>
+	<div class="container mx-auto p-4">
+		<h1 class="text-2xl font-bold mb-4">User Management</h1>
+		<h2 class="text-xl font-bold mb-4">Create User</h2>
+		<form id="userForm" action="/api/user" method="POST" onsubmit="submitAsJSON(event)" class="mb-8 p-4 bg-gray-100 rounded">
+			<div class="flex flex-wrap -mx-2 mb-4">
+				<div class="w-full md:w-1/3 px-2 mb-4 md:mb-0">
+					<label for="uid" class="block text-gray-700 font-bold mb-2">User ID:</label>
+					<input type="text" id="uid" name="uid" class="w-full px-3 py-2 border rounded-lg"/>
+				</div>
+				<div class="w-full md:w-1/3 px-2 mb-4 md:mb-0">
+					<label for="username" class="block text-gray-700 font-bold mb-2">Username:</label>
+					<input type="text" id="username" name="username" class="w-full px-3 py-2 border rounded-lg"/>
+				</div>
+				<div class="w-full md:w-1/3 px-2">
+					<label for="role" class="block text-gray-700 font-bold mb-2">Role:</label>
+					<select id="role" name="role" class="w-full px-3 py-2 border rounded-lg">
+						<option value="user">User</option>
+						<option value="admin">Admin</option>
+					</select>
+				</div>
+			</div>
+			<div class="mt-4">
+				<button type="submit" class="btn btn-primary">Submit</button>
+			</div>
+		</form>
+		<div id="result"></div>
+		<h2 class="text-xl font-bold mb-4">List User</h2>
+		<table class="w-full border-collapse border">
+			<thead>
+				<tr class="bg-gray-200">
+					for _, field := range reflect.VisibleFields(reflect.TypeOf(model.User{})) {
+						<th class="border p-2">{ field.Name }</th>
+					}
+					<th class="border p-2">Actions</th>
+				</tr>
+			</thead>
+			<tbody id="users-table-body">
+				for _, user := range users {
+					<tr>
+						@DynamicUserRow(user)
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+	<script>
 function submitAsJSON(event) {
     event.preventDefault();
 
@@ -91,80 +77,76 @@ function submitAsJSON(event) {
         }
         return response.json();
     })
-    .then(data => {
-        // Update the page with the server response
-        document.getElementById('result').innerHTML = `
+    .then(data => { OkMsg() })
+    .catch(error => { NotOkMsg() });
+}
+
+		function editUserHandler(button) {
+			const row = button.closest('tr');
+			const cells = row.getElementsByTagName('td');
+			const user = {};
+
+			// Gather data from the row
+			for (let i = 0; i < cells.length - 1; i++) { // -1 to exclude the Actions cell
+				const fieldName = document.querySelector('th:nth-child(' + (i+1) + ')').textContent;
+				user[fieldName] = cells[i].textContent.trim();
+			}
+
+			// Send the data to the server
+			fetch('/api/user/' + user.Uid, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(user),
+			})
+			.then(response => response.json())
+			.then(data => { OkMsg() })
+			.catch((error) => {  NotOkMsg() });
+		}
+
+        function OkMsg(){
+
+            document.getElementById('result').innerHTML = `
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <strong>Success!</strong> The form was submitted successfully.
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         `;
 
-        // Refresh page after 3 seconds
         setTimeout(function() {
             location.reload();
         }, 1250);
-    })
-    .catch(error => {
-        document.getElementById('result').innerHTML = `
-            <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                <strong>Error!</strong> ${error.message}
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        `;
-    });
-}
 
-function editUserHandler() {
-    // Find the row that contains the button that was clicked
-    const row = event.target.closest('tr');
-
-    // Extract values from the editable cells in the row
-    const user = {
-        Uid: row.querySelector('td:nth-child(1)').innerText.trim(),
-        Username: row.querySelector('td:nth-child(2)').innerText.trim(),
-        Role: row.querySelector('td:nth-child(3)').innerText.trim(),
-    };
-
-    // Send the updated user object to the server
-    fetch(`/api/user/${user.Uid}`, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(user)
-    })
-    .then(response => {
-        if (!response.ok) {
-            throw new Error(`${response.status} ${response.statusText}`);
         }
-        return response.json();
-    })
-    .then(data => {`
-        // Display a success message
-        document.getElementById('result').innerHTML = `
-            <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <strong>Success!</strong> The user was updated successfully.
-                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-            </div>
-        `;
 
-        // Refresh page after 1.25 seconds
-        setTimeout(function() {
-            location.reload();
-        }, 1250);
-    })
-    .catch(error => {
-        // Display an error message
-        document.getElementById('result').innerHTML = `
+        function NotOkMsg(){
+             document.getElementById('result').innerHTML = `
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <strong>Error!</strong> ${error.message}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         `;
-    });
+        }
+	</script>
 }
 
-</script>
-
+templ DynamicUserRow(user model.User) {
+	for _, field := range reflect.VisibleFields(reflect.TypeOf(user)) {
+		<td contenteditable="true" class="border p-2">
+			{ fmt.Sprintf("%v", reflect.ValueOf(user).FieldByName(field.Name).Interface()) }
+		</td>
+	}
+	<td class="border p-2">
+		<button onclick="editUserHandler(this)" class="btn btn-warning">Edit </button>
+		<button
+			hx-delete={ string(templ.URL(fmt.Sprintf("/api/user/%s", user.Uid))) }
+			hx-confirm="Are you sure you want to delete this user?"
+			hx-target="#users-table-body"
+			hx-on::after-request="if(event.detail.successful) location.reload();"
+			class="btn btn-danger"
+		>
+			Delete
+		</button>
+	</td>
 }
