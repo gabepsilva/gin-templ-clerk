@@ -4,7 +4,7 @@ import (
 	"gotempl/controller"
 	"gotempl/database"
 	"gotempl/middleware"
-	"gotempl/repositories"
+	"gotempl/repository"
 	"gotempl/service"
 	"os"
 
@@ -81,11 +81,11 @@ func main() {
 
 	db := database.InitDB()
 
-	userRepo := repositories.NewUserRepository(db)
+	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
 	userHandler := controller.NewUserHandler(userService)
 
-	eventRepo := repositories.NewEventRepository(db)
+	eventRepo := repository.NewEventRepository(db)
 	eventService := service.NewEventService(eventRepo)
 	eventHandler := controller.NewEventHandler(eventService)
 

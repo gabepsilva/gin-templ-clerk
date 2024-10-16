@@ -4,7 +4,7 @@ import (
 	"context"
 	"gotempl/controller"
 	"gotempl/model"
-	"gotempl/repositories"
+	"gotempl/repository"
 	"gotempl/service"
 	"net/http"
 	"testing"
@@ -33,8 +33,8 @@ func setupTestServer(t *testing.T) (*gin.Engine, *gorm.DB) {
 		db.Create(&user)
 	}
 
-	// Set up repositories and services
-	userRepo := repositories.NewUserRepository(db)
+	// Set up repository and services
+	userRepo := repository.NewUserRepository(db)
 	userService := service.NewUserService(userRepo)
 	userHandler := controller.NewUserHandler(userService)
 

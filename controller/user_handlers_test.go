@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"gotempl/model"
-	"gotempl/repositories"
+	"gotempl/repository"
 	"gotempl/service"
 	"net/http"
 	"net/http/httptest"
@@ -24,7 +24,7 @@ func setupTestEnvironment(t *testing.T) (*gorm.DB, *UserHandler, *gin.Engine) {
 	err = db.AutoMigrate(&model.User{})
 	assert.NoError(t, err)
 
-	repo := repositories.NewUserRepository(db)
+	repo := repository.NewUserRepository(db)
 	service := service.NewUserService(repo)
 	handler := NewUserHandler(service)
 

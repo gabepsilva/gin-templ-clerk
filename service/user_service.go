@@ -3,17 +3,17 @@ package service
 import (
 	"errors"
 	"gotempl/model"
-	"gotempl/repositories"
+	"gotempl/repository"
 
 	"github.com/go-playground/validator/v10"
 )
 
 type UserService struct {
-	repo     *repositories.UserRepository
+	repo     *repository.UserRepository
 	validate *validator.Validate
 }
 
-func NewUserService(repo *repositories.UserRepository) *UserService {
+func NewUserService(repo *repository.UserRepository) *UserService {
 	return &UserService{
 		repo:     repo,
 		validate: validator.New(),

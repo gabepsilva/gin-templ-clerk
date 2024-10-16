@@ -3,18 +3,18 @@ package service
 import (
 	"errors"
 	"gotempl/model"
-	"gotempl/repositories"
+	"gotempl/repository"
 
 	"github.com/go-playground/validator/v10"
 	log "github.com/sirupsen/logrus"
 )
 
 type EventService struct {
-	repo     *repositories.EventRepository
+	repo     *repository.EventRepository
 	validate *validator.Validate
 }
 
-func NewEventService(repo *repositories.EventRepository) *EventService {
+func NewEventService(repo *repository.EventRepository) *EventService {
 	return &EventService{
 		repo:     repo,
 		validate: validator.New(),
