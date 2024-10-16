@@ -7,7 +7,27 @@
         "version": "1.0"
     },
     "paths": {
-        "/admin/user/crud": {
+        "/admin/event/": {
+            "get": {
+                "description": "Fetches all events and renders an HTML page with a CRUD form for event management (non-REST endpoint)",
+                "produces": [
+                    "text/html"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "This is a non-REST endpoint that returns an HTML page - not JSON data",
+                "responses": {
+                    "200": {
+                        "description": "HTML page content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/admin/user": {
             "get": {
                 "description": "Fetches all users and renders an HTML page with a CRUD form for user management (non-REST endpoint)",
                 "produces": [
@@ -27,9 +47,9 @@
                 }
             }
         },
-        "/event/": {
+        "/event": {
             "get": {
-                "description": "get string by ID",
+                "description": "Retrieve a list of all events",
                 "consumes": [
                     "application/json"
                 ],
@@ -39,12 +59,196 @@
                 "tags": [
                     "Event"
                 ],
-                "summary": "Show an account",
+                "summary": "Get all events",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/model.Event"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object",
+                            "additionalProperties": {
+                                "type": "string"
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Create a new event with the provided information",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Create a new event",
+                "parameters": [
+                    {
+                        "description": "Event information",
+                        "name": "event",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Event"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/model.Event"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            }
+        },
+        "/event/{id}": {
+            "get": {
+                "description": "Retrieve a event's information using their ID",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Get a event by ID",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/model.Event"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "put": {
+                "description": "Update a event's information in the system",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Update a event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Updated event information",
+                        "name": "event",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/model.Event"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/model.Event"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "type": "object"
+                        }
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Delete a event from the system using their ID.",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Event"
+                ],
+                "summary": "Delete a event",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Event ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content"
+                    },
+                    "500": {
+                        "description": "Internal Server Error",
+                        "schema": {
+                            "type": "object"
                         }
                     }
                 }
@@ -294,6 +498,10 @@
                     "description": "ID (uint): The unique identifier for the event, serves as the primary key.",
                     "type": "integer"
                 },
+                "images": {
+                    "description": "Images ([]string): Array of image URLs associated with the event (e.g., event posters).",
+                    "type": "string"
+                },
                 "is_featured": {
                     "description": "IsFeatured (bool): Indicates whether this event is featured or highlighted on the platform.",
                     "type": "boolean"
@@ -319,7 +527,7 @@
                     "type": "boolean"
                 },
                 "start_time": {
-                    "description": "Images               []string  `json:\"images\" gorm:\"type:json\"`            // Images ([]string): Array of image URLs associated with the event (e.g., event posters).",
+                    "description": "StartTime (time.Time): When the event is scheduled to begin.",
                     "type": "string"
                 },
                 "status": {

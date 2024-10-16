@@ -150,7 +150,7 @@ func (h *UserHandler) DeleteUser(c *gin.Context) {
 // @Tags         User
 // @Produce      html
 // @Success      200  {string}  string  "HTML page content"
-// @Router       /admin/user/crud [get]
+// @Router       /admin/user [get]
 // @Notes
 func (h *UserHandler) UserCRUDHandler(c *gin.Context) {
 	users, err := h.Service.GetAllUsers()
@@ -160,5 +160,5 @@ func (h *UserHandler) UserCRUDHandler(c *gin.Context) {
 	}
 
 	//print(users)
-	layout.Render(c, 200, crud.UserForm(users, &model.User{}))
+	layout.Render(c, 200, crud.UserForm(users))
 }

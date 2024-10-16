@@ -1,209 +1,80 @@
 package crud
 
 import (
-    "gotempl/model"
-    "fmt"
-    "strings"
+	"fmt"
+	"gotempl/model"
+	"reflect"
 )
 
 templ EventForm(events []model.Event) {
-    <div class="container mx-auto p-4">
-        <h1 class="text-2xl font-bold mb-4">Event Management</h1>
-        <h2 class="text-xl font-bold mb-4">Create/Edit Event</h2>
+	<div class="container mx-auto p-4">
+		<h1 class="text-2xl font-bold mb-4">Event Management</h1>
+		<h2 class="text-xl font-bold mb-4">Create Event</h2>
+		<form id="eventForm" action="/api/event" method="POST" onsubmit="submitAsJSON(event)" class="mb-8 p-4 bg-gray-100 rounded">
+			<div class="flex flex-wrap -mx-2 mb-4">
+				<div class="w-full md:w-1/3 px-2 mb-4 md:mb-0">
+					<label for="id" class="block text-gray-700 font-bold mb-2">Event ID:</label>
+					<input type="text" id="id" name="id" class="w-full px-3 py-2 border rounded-lg"/>
+				</div>
+				<div class="w-full md:w-1/3 px-2 mb-4 md:mb-0">
+					<label for="eventname" class="block text-gray-700 font-bold mb-2">Eventname:</label>
+					<input type="text" id="eventname" name="eventname" class="w-full px-3 py-2 border rounded-lg"/>
+				</div>
+				<div class="w-full md:w-1/3 px-2">
+					<label for="role" class="block text-gray-700 font-bold mb-2">Role:</label>
+					<select id="role" name="role" class="w-full px-3 py-2 border rounded-lg">
+						<option value="event">Event</option>
+						<option value="admin">Admin</option>
+					</select>
+				</div>
+			</div>
+			<div class="mt-4">
+				<button id="submitBtn" type="submit" class="btn btn-primary">Submit</button>
+			</div>
+		</form>
+		<div id="result"></div>
+		<h2 class="text-xl font-bold mb-4">List Event</h2>
+		<table class="w-full border-collapse border">
+			<thead>
+				<tr class="bg-gray-200">
+					for _, field := range reflect.VisibleFields(reflect.TypeOf(model.Event{})) {
+						<th class="border p-2">{ field.Name }</th>
+					}
+					<th class="border p-2">Actions</th>
+				</tr>
+			</thead>
+			<tbody id="events-table-body">
+				for _, event := range events {
+					<tr>
+						@DynamicEventRow(event)
+					</tr>
+				}
+			</tbody>
+		</table>
+	</div>
+	<script>
+function submitAsJSON(event) {
+    event.preventDefault();
 
-        <form id="eventForm" action="/api/event" method="POST" onsubmit="submitEventAsJSON(event)"
-            class="mb-8 p-4 bg-gray-100 rounded">
-            
-            <div class="mb-4">
-                <label for="createdBy" class="block text-gray-700 font-bold mb-2">Event publisher:</label>
-                <input type="text" id="createdBy" name="createdBy" class="w-full px-3 py-2 border rounded-lg" required />
-            </div>
-            <div class="mb-4">
-                <label for="title" class="block text-gray-700 font-bold mb-2">Title:</label>
-                <input type="text" id="title" name="title" class="w-full px-3 py-2 border rounded-lg" required />
-            </div>
-            <div class="mb-4">
-                <label for="description" class="block text-gray-700 font-bold mb-2">Description:</label>
-                <textarea id="description" name="description" class="w-full px-3 py-2 border rounded-lg" rows="3"></textarea>
-            </div>
-            <div class="mb-4">
-                <label for="location" class="block text-gray-700 font-bold mb-2">Location:</label>
-                <input type="text" id="location" name="location"  class="w-full px-3 py-2 border rounded-lg" />
-            </div>
-            <div class="mb-4">
-                <label for="startTime" class="block text-gray-700 font-bold mb-2">Start Time:</label>
-                <input type="datetime-local" id="startTime" name="startTime"  class="w-full px-3 py-2 border rounded-lg" />
-            </div>
-            <div class="mb-4">
-                <label for="endTime" class="block text-gray-700 font-bold mb-2">End Time:</label>
-                <input type="datetime-local" id="endTime" name="endTime"  class="w-full px-3 py-2 border rounded-lg" />
-            </div>
-            <div class="mb-4">
-                <label for="status" class="block text-gray-700 font-bold mb-2">Status:</label>
-                <select id="status" name="status" class="w-full px-3 py-2 border rounded-lg">
-                    <option value="draft" >Draft</option>
-                    <option value="published">Published</option>
-                    <option value="cancelled" >Cancelled</option>
-                </select>
-            </div>
-            <div class="mb-4">
-                <label for="maxAttendees" class="block text-gray-700 font-bold mb-2">Max Attendees:</label>
-                <input type="number" id="maxAttendees" name="maxAttendees" class="w-full px-3 py-2 border rounded-lg" />
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 font-bold mb-2">
-                    <input type="checkbox" id="isPublic" name="isPublic"  />
-                    Is Public
-                </label>
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 font-bold mb-2">
-                    <input type="checkbox" id="rsvpRequired" name="rsvpRequired" />
-                    RSVP Required
-                </label>
-            </div>
-            
-            <div class="mb-4">
-                <label for="tags" class="block text-gray-700 font-bold mb-2">Tags (comma-separated):</label>
-                <input type="text" id="tags" name="tags"class="w-full px-3 py-2 border rounded-lg" />
-            </div>
-            
-            <div class="mb-4">
-                <label for="organizerContactInfo" class="block text-gray-700 font-bold mb-2">Organizer Contact Info:</label>
-                <input type="text" id="organizerContactInfo" name="organizerContactInfo" class="w-full px-3 py-2 border rounded-lg" />
-            </div>
-            <div class="mb-4">
-                <label for="externalLink" class="block text-gray-700 font-bold mb-2">External Link:</label>
-                <input type="url" id="externalLink" name="externalLink"  class="w-full px-3 py-2 border rounded-lg" />
-            </div>
-            <div class="mb-4">
-                <label class="block text-gray-700 font-bold mb-2">
-                    <input type="checkbox" id="isFeatured" name="isFeatured"  />
-                    Is Featured
-                </label>
-            </div>
-            <div class="mb-4">
-                <label for="eventType" class="block text-gray-700 font-bold mb-2">Event Type:</label>
-                <input type="text" id="eventType" name="eventType" class="w-full px-3 py-2 border rounded-lg" />
-            </div>
-            <button type="submit" class="btn btn-primary">Submit</button>
-        </form>
+    const form = document.getElementById('eventForm');
+    const formData = new FormData(form);
+    const jsonData = {};
 
-        <div id="result"></div>
-        
-        <h2 class="text-xl font-bold mb-4">Event List</h2>
-        <table class="w-full border-collapse border">
-            <thead>
-                <tr class="bg-gray-200">
-                    <th class="border p-2">ID</th>
-                    <th class="border p-2">Title</th>
-                    <th class="border p-2">Start Time</th>
-                    <th class="border p-2">Location</th>
-                    <th class="border p-2">Status</th>
-                    <th class="border p-2">Actions</th>
-                </tr>
-            </thead>
-            <tbody id="events-table-body">
-                for _, event := range events {
-                <tr>
-                    <td class="border p-2">{ fmt.Sprint(event.ID) }</td>
-                    <td contenteditable="true" class="border p-2">{ event.Title }</td>
-                    <td contenteditable="true" class="border p-2">{ event.StartTime.Format("2006-01-02 15:04") }</td>
-                    <td contenteditable="true" class="border p-2">{ event.Location }</td>
-                    <td contenteditable="true" class="border p-2">{ event.Status }</td>
-                    <td contenteditable="true" class="border p-2">{ event.Tags }</td>
-                    <td class="border p-2">
-                        <button onclick="editEventHandler()" class="btn btn-warning mr-2">Edit</button>
-                        <button hx-delete={ fmt.Sprintf("/api/event/%d", event.ID) }
-                                hx-confirm="Are you sure you want to delete this event?"
-                                hx-target="#events-table-body"
-                                hx-on::after-request="if(event.detail.successful) location.reload();"
-                                class="btn btn-danger">
-                            Delete
-                        </button>
-                    </td>
-                </tr>
-                }
-            </tbody>
-        </table>
-    </div>
-
-    <script>
-    function submitEventAsJSON(event) {
-        event.preventDefault();
-
-        const form = document.getElementById('eventForm');
-        const formData = new FormData(form);
-        const jsonData = {};
-
-        formData.forEach((value, key) => {
-            if (key === 'tags') {
-                jsonData[key] = JSON.stringify(value.split(',').map(item => item.trim()));
-            } else if (key === 'isPublic' || key === 'rsvpRequired' || key === 'isFeatured') {
-                jsonData[key] = formData.get(key) === 'on';
-            } else if (key === 'maxAttendees') {
-                jsonData[key] = parseInt(value);
-            } else {
-                jsonData[key] = value;
-            }
-        });
+    formData.forEach((value, key) => {
+        if (key === 'id') {
+            jsonData[key] = parseInt(value, 10);
+        } else {
+            jsonData[key] = value;
+        }
+    });
 
 
-        fetch(form.action, {
-            method: form.method,
-            headers: {
-                'Content-Type': 'application/json'
-            },
-            body: JSON.stringify(jsonData)
-        })
-        .then(response => {
-            if (!response.ok) {
-                throw new Error(`${response.status} ${response.statusText}`);
-            }
-            return response.json();
-        })
-        .then(data => {
-            document.getElementById('result').innerHTML = `
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <strong>Success!</strong> The event was submitted successfully.
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            `;
-            setTimeout(() => location.reload(), 1250);
-        })
-        .catch(error => {
-            document.getElementById('result').innerHTML = `
-                <div class="alert alert-danger alert-dismissible fade show" role="alert">
-                    <strong>Error!</strong> ${error.message}
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            `;
-        });
-    }
-
-    function editEventHandler() {
-    // Find the row that contains the button that was clicked
-    const row = event.target.closest('tr');
-
-    // Extract values from the editable cells in the row
-
-
-    const event = {
-        ID: row.querySelector('td:nth-child(1)').innerText.trim(),
-        Title: row.querySelector('td:nth-child(2)').innerText.trim(),
-        StartTime: row.querySelector('td:nth-child(3)').innerText.trim(),
-        Location: row.querySelector('td:nth-child(4)').innerText.trim(),
-        Status: row.querySelector('td:nth-child(5)').innerText.trim(),
-        Tags: row.querySelector('td:nth-child(6)').innerText.trim(),
-    };
-
-    // Send the updated event object to the server
-    fetch(`/api/event/${event.Uid}`, {
-        method: 'PUT',
+    fetch(form.action, {
+        method: form.method,
         headers: {
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(event)
+        body: JSON.stringify(jsonData)
     })
     .then(response => {
         if (!response.ok) {
@@ -211,56 +82,79 @@ templ EventForm(events []model.Event) {
         }
         return response.json();
     })
-    .then(data => {
-        // Display a success message
-        document.getElementById('result').innerHTML = `
+    .then(data => { OkMsg() })
+    .catch(error => { NotOkMsg() });
+}
+
+		function editEventHandler(button) {
+			const row = button.closest('tr');
+			const cells = row.getElementsByTagName('td');
+			const event = {};
+
+			// Gather data from the row
+			for (let i = 0; i < cells.length - 1; i++) { // -1 to exclude the Actions cell
+				const fieldName = document.querySelector('th:nth-child(' + (i+1) + ')').textContent;
+				let value = cells[i].textContent.trim();
+				if (fieldName === 'ID') {
+					value = parseInt(value, 10);
+				}
+				event[fieldName] = cells[i].textContent.trim();
+			}
+
+			// Send the data to the server
+			fetch('/api/event/' + event.ID, {
+				method: 'PUT',
+				headers: {
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify(event),
+			})
+			.then(response => response.json())
+			.then(data => { OkMsg() })
+			.catch((error) => {  NotOkMsg() });
+		}
+
+        function OkMsg(){
+
+            document.getElementById('result').innerHTML = `
             <div class="alert alert-success alert-dismissible fade show" role="alert">
-                <strong>Success!</strong> The event was updated successfully.
+                <strong>Success!</strong> The form was submitted successfully.
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         `;
 
-        // Refresh page after 1.25 seconds
         setTimeout(function() {
             location.reload();
         }, 1250);
-    })
-    .catch(error => {
-        // Display an error message
-        document.getElementById('result').innerHTML = `
+
+        }
+
+        function NotOkMsg(){
+             document.getElementById('result').innerHTML = `
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
                 <strong>Error!</strong> ${error.message}
                 <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
         `;
-    });
+        }
+	</script>
 }
 
-    function editEventHandler1(eventId) {
-        fetch(`/api/event/${eventId}`)
-            .then(response => response.json())
-            .then(event => {
-                document.getElementById('createdby').value = event.created_by;
-                document.getElementById('title').value = event.title;
-                document.getElementById('description').value = event.description;
-                document.getElementById('location').value = event.location;
-                document.getElementById('startTime').value = new Date(event.start_time).toISOString().slice(0, 16);
-                document.getElementById('endTime').value = new Date(event.end_time).toISOString().slice(0, 16);
-                document.getElementById('status').value = event.status;
-                document.getElementById('maxAttendees').value = event.max_attendees;
-                document.getElementById('isPublic').checked = event.is_public;
-                document.getElementById('rsvpRequired').checked = event.rsvp_required;
-                document.getElementById('tags').value = event.tags.join(', ');
-                document.getElementById('organizerContactInfo').value = event.organizer_contact_info;
-                document.getElementById('externalLink').value = event.external_link;
-                document.getElementById('isFeatured').checked = event.is_featured;
-                document.getElementById('eventType').value = event.event_type;
-            })
-            .catch(error => console.error('Error:', error));
-    }
-    </script>
-}
-
-func joinTags(tags []string) string {
-    return strings.Join(tags, ", ")
+templ DynamicEventRow(event model.Event) {
+	for _, field := range reflect.VisibleFields(reflect.TypeOf(event)) {
+		<td contenteditable="true" class="border p-2">
+			{ fmt.Sprintf("%v", reflect.ValueOf(event).FieldByName(field.Name).Interface()) }
+		</td>
+	}
+	<td class="border p-2">
+		<button onclick="editEventHandler(this)" class="btn btn-warning">Edit </button>
+		<button
+			hx-delete={ string(templ.URL(fmt.Sprintf("/api/event/%d", event.ID))) }
+			hx-target="#events-table-body"
+			hx-on::after-request="if(event.detail.successful) location.reload();"
+			class="btn btn-danger"
+		>
+			Delete
+		</button>
+	</td>
 }

@@ -10,6 +10,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
+	"github.com/sirupsen/logrus"
 
 	"github.com/clerk/clerk-sdk-go/v2"
 
@@ -40,6 +41,14 @@ func init() {
 
 	}
 	clerk.SetKey(apiKey)
+
+	// Set logger to include the file and line number
+	logrus.SetReportCaller(true)
+
+	// Customize log format (optional)
+	logrus.SetFormatter(&logrus.TextFormatter{
+		FullTimestamp: true,
+	})
 }
 
 // @title           GoTempl
@@ -76,7 +85,9 @@ func main() {
 	userService := service.NewUserService(userRepo)
 	userHandler := controller.NewUserHandler(userService)
 
-	eventHandler := controller.EventHandler{}
+	eventRepo := repositories.NewEventRepository(db)
+	eventService := service.NewEventService(eventRepo)
+	eventHandler := controller.NewEventHandler(eventService)
 
 	// Define routes
 	eventRoutes := r.Group("/api/event")
