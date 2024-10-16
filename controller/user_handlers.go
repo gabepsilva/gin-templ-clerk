@@ -2,8 +2,8 @@ package controller
 
 import (
 	"errors"
-	"gotempl/controller/service"
 	"gotempl/model"
+	"gotempl/service"
 	"gotempl/views/crud"
 	"gotempl/views/layout"
 	"net/http"

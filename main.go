@@ -2,10 +2,10 @@ package main
 
 import (
 	"gotempl/controller"
-	"gotempl/controller/service"
 	"gotempl/database"
 	"gotempl/middleware"
 	"gotempl/repositories"
+	"gotempl/service"
 	"os"
 
 	"github.com/gin-gonic/gin"

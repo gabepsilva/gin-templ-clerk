@@ -3,9 +3,9 @@ package crud_test
 import (
 	"context"
 	"gotempl/controller"
-	"gotempl/controller/service"
 	"gotempl/model"
 	"gotempl/repositories"
+	"gotempl/service"
 	"net/http"
 	"testing"
 
